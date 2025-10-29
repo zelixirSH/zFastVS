@@ -1,2 +1,1 @@
-# zFastVS
-Zelixir's Fast Screening Protocol using MLP-enhanced fast scoring.
+# Zelixir's fast virtual screening protocol
