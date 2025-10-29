@@ -1,0 +1,107 @@
+#!/usr/bin/env python
+
+import os, sys   
+import argparse
+import subprocess as sp 
+import uuid
+import shutil 
+
+IDOCK_BINARY="/sugon_store/zhengliangzhen/bin/idock223"
+
+ALLOWED_TERMS = ['receptor', 'ligand', 'out', 
+                 'center_x', 'center_y', 'center_z',
+                 'size_x', 'size_y', 'size_z',
+                 'threads', 'conformations', 'tasks'
+                 ]
+
+def argument():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--config", dest="config", default="vina.config", type=str, 
+                        help="Configuration file.")
+    
+    args = parser.parse_args()
+
+    if len(sys.argv) < 2:
+        parser.print_help() 
+        sys.exit(0) 
+
+    return args
+
+
+def generate_new_configs(config_inp_fpath, config_out_fpath, output_dpath):
+    configs = {}
+    new_configs = {}
+    with open(config_inp_fpath) as lines:
+        for l in lines:
+            if len(l.split("=")) == 2:
+                key = l.split("=")[0].strip()
+                if key in ALLOWED_TERMS:
+                    configs[key] = l.split("=")[1].strip("\n").strip()
+                elif key == "cpu":
+                    configs['threads'] = l.split("=")[1].strip("\n").strip()
+                elif key == "exhaustiveness":
+                    configs['tasks'] = l.split("=")[1].strip("\n").strip()
+                elif key == "num_modes":
+                    configs['conformations'] = l.split("=")[1].strip("\n").strip()
+    
+    print(configs)
+    
+    # now change output  
+    # idock output directory, not file path 
+    real_output_fpath = configs['out']
+    configs['out'] = output_dpath
+
+    with open(config_out_fpath, 'w') as tof:
+        for key in configs.keys():
+            tof.write("{} = {} \n".format(key, configs[key]))
+    tof.close() 
+
+    return configs, real_output_fpath
+
+def run_idock(config_fpath):
+    # create a temporary path now
+    tmp_token = str(uuid.uuid4().hex)[:8]
+    os.makedirs(f"/tmp/idock_{tmp_token}", exist_ok=True)
+
+    temp_output_dpath = f"/tmp/idock_{tmp_token}"
+    temp_config_fpath = os.path.join(temp_output_dpath, "idock.config")
+    # create a new config file 
+    configs, real_output_fpath = generate_new_configs(config_fpath, temp_config_fpath, temp_output_dpath)
+    #print("Configs ", configs)
+
+    # run the idock, a new file will be generated 
+    idock_temp_output_fpath = os.path.join(temp_output_dpath, os.path.basename(configs['ligand']))
+    try:
+        cmd = f"{IDOCK_BINARY} --config {temp_config_fpath}"
+        print(f"Running cmd: {cmd}")
+        job = sp.Popen(cmd, shell=True)
+        job.communicate()
+    except:
+        print("Running idock failed ...")
+
+    # check output file and cp it 
+    src = idock_temp_output_fpath
+    dst = real_output_fpath
+    if os.path.exists(src):
+        tofile = open(dst, 'w')
+        with open(src, 'r') as lines:
+            for l in lines:
+                if "REMARK 921   NORMALIZED" in l:
+                    score = float(l.split()[-2])
+                    tofile.write("REMARK VINA RESULT:  {:.3f}   0.000  0.000 \n".format(score))
+
+                tofile.write(l)
+        tofile.close()
+    else:
+        print(f"Idock result {idock_temp_output_fpath} not found, exit now ...")
+    
+    try:
+        shutil.rmtree(temp_output_dpath)
+    except:
+        print(f"removing directory {temp_output_dpath} failed") 
+
+if __name__ == "__main__":
+
+    args = argument()
+    run_idock(args.config)
+
