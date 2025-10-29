@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ $# -ne 2 ]; then
+  echo "usage: obabel_rdkit input.smi out.pdb"
+  exit 0;
+fi
+
+inp=$1
+out=$2
+
+mkdir `dirname $out`
+
+obabel $inp -O $out --gen3D > /dev/null 2>&1
+
+if [ ! -f $out ]; then
+  smi=`cat $inp | head -n 1| awk '{print $1}'`
+  echo "[INFO] generate pdb using rdkit for $smi"
+  smi2pdb.py $smi $out
+fi
+
