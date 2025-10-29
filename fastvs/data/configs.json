@@ -1,0 +1,17 @@
+
+{
+    "nyan": {
+        "python": "/sugon_store/zhengliangzhen/apps/nyan-decoder/envs/nyan/bin/python",
+        "script": "/sugon_store/zhengliangzhen/apps/nyan-decoder/encode_smiles.py"
+    },
+
+    "idock": {
+        "python": "",
+        "script": "/sugon_store/zhengliangzhen/apps/zydock/tools/pyidock"
+    },
+
+    "sfct": {
+        "python": "",
+        "script": "/sugon_store/zhengliangzhen/apps/zydock/run_docking_vina_only.sh"
+    }
+}
