@@ -4,7 +4,7 @@ zFastVS is a deep learning-based virtual screening toolkit designed for ultra-fa
 ![zFastVS Pipeline](./images/pipeline_zFastVS.png)
 
 ## Overview
-FastVS combines molecular docking and machine learning approaches to provide a complete virtual screening pipeline:
+zFastVS combines molecular docking and machine learning approaches to provide a complete virtual screening pipeline:
 
 - Molecular Docking: Uses AutoDock Vina and SFCT for molecular docking
 
@@ -19,7 +19,7 @@ FastVS combines molecular docking and machine learning approaches to provide a c
 
 - Flexible Docking: Supports both Vina and SFCT scoring functions
 
-- Multiple ML Models: Random Forest, AdaBoost, and Neural Network models
+- Multiple ML/DL Models: Random Forest, AdaBoost, and Neural Network models
 
 - Cluster Ready: Built-in SLURM support for high-throughput screening
 
@@ -36,13 +36,21 @@ Open Babel
 ```
 
 ## Dependencies
-bash
+### Python packages
 ```pip install rdkit scikit-learn numpy```
+
+### External packages and tools.
 
 The following two core tools should be installed:
 - OnionNet-SFCT (https://github.com/zhenglz/OnionNet-SFCT.git)
 - NYAN (https://github.com/Chokyotager/NotYetAnotherNightshade.git)
+- iDock (https://github.com/gloglita/idock.git)
 
+A binary version of iDock should be downloaded and tested. The path of the binary idock version should be replaced in this script ```bin/pyidock```
+.
+
+### Slurm support
+To enable large scale docking, the slurm job submission system should be included. The user needs to modify this script ```bin/submit_slurm_taskid.sh``` to suit his/her system.
 
 ## Quick Start
 ### A standard protocol for ultra-fast virtual screening.
@@ -177,15 +185,25 @@ Create a configs.json file:
 json
 ```
 {
-    "sfct": {
-        "script": "/path/to/sfct_script.py"
-    },
     "nyan": {
-        "python": "/path/to/python",
-        "script": "/path/to/nyan_script.py"
+        "python": "/path-to/nyan-decoder/envs/nyan/bin/python",
+        "script": "/path-to/nyan-decoder/encode_smiles.py"
+    },
+
+    "idock": {
+        "python": "",
+        "script": "/path-to/pyidock"
+    },
+
+    "sfct": {
+        "python": "",
+        "script": "/path-to/zydock/run_docking_vina_only.sh"
     }
 }
+
 ```
+
+Example scripts such as ```pyidock``` and ```run_docking_vina_only.sh``` could be found in ```bin``` directory. 
 
 ## Usage Examples
 Batch Docking on Cluster
@@ -229,4 +247,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 
 ## Contact
-For questions and support, please contact: [your.email@example.com]
+For questions and support, please contact: zhenglz@zelixir.com
