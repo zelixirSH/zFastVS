@@ -1,6 +1,8 @@
 # zFastVS - Zelixir's Fast Virtual Screening Toolkit
 zFastVS is a deep learning-based virtual screening toolkit designed for ultra-fast prediction of small molecule binding affinity to target proteins.
 
+![zFastVS Pipeline](./images/pipeline_zFastVS.png)
+
 ## Overview
 FastVS combines molecular docking and machine learning approaches to provide a complete virtual screening pipeline:
 
@@ -122,6 +124,7 @@ fastvs/
 Create a configs.json file:
 
 json
+```
 {
     "sfct": {
         "script": "/path/to/sfct_script.py"
@@ -131,7 +134,7 @@ json
         "script": "/path/to/nyan_script.py"
     }
 }
-
+```
 
 ## Usage Examples
 Batch Docking on Cluster
