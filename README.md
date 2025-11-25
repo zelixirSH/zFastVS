@@ -45,6 +45,54 @@ The following two core tools should be installed:
 
 
 ## Quick Start
+### A standard protocol for ultra-fast virtual screening.
+Running the ```protocols/fastVina4VS.py``` for the screening. The help information is 
+```
+usage: fastVina4VS.py [-h] --smiles_file SMILES_FILE --config CONFIG
+                      --receptor RECEPTOR [--output OUTPUT]
+                      [--train_batch TRAIN_BATCH] [--test_size TEST_SIZE]
+                      [--rounds ROUNDS] [--method {MLP,RF,Adaboost}]
+                      --pocket_x POCKET_X --pocket_y POCKET_Y --pocket_z
+                      POCKET_Z [--pocket_size POCKET_SIZE]
+                      [--cofactor COFACTOR]
+                      [--fp_types {morgan,nyan} [{morgan,nyan} ...]]
+
+zFastVS - Virtual Screening Pipeline
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --smiles_file SMILES_FILE
+                        Path to input SMILES file
+  --config CONFIG       Path to configuration file (default: fastvs/data/configs.json)
+  --receptor RECEPTOR   Path to receptor PDBQT file
+  --output OUTPUT       Output directory path (default: output)
+  --train_batch TRAIN_BATCH
+                        Number of molecules per training batch (default: 5000)
+  --test_size TEST_SIZE
+                        Number of molecules for test set (default: 5000)
+  --rounds ROUNDS       Number of training rounds (default: 20)
+  --method {MLP,RF,Adaboost}
+                        Machine learning method (default: MLP)
+  --pocket_x POCKET_X   X coordinate of pocket center
+  --pocket_y POCKET_Y   Y coordinate of pocket center
+  --pocket_z POCKET_Z   Z coordinate of pocket center
+  --pocket_size POCKET_SIZE
+                        Pocket size for docking (default: 15)
+  --cofactor COFACTOR   Path to cofactor file (optional)
+  --fp_types {morgan,nyan} [{morgan,nyan} ...]
+                        Fingerprint types to use (default: morgan nyan)
+
+```
+
+Basic usage example:
+```
+python protocols/fastVina4VS.py \
+  --smiles_file zinc_5w_example.smi \
+  --config ../fastvs/data/configs.json \
+  --receptor 1gpn_protein_atom_noHETATM.pdbqt \
+  --pocket_x 3.861 --pocket_y 67.520 --pocket_z 61.745
+```
+
 ### 1. Prepare Input Data
 
 ```
@@ -85,7 +133,7 @@ featurizer = FeaturizeMolecules(
 features = featurizer.get_fp()
 ```
 
-4. Train ML Model
+### 4. Train ML Model
 ```
 from fastvs.core.training import BindingScoreTrainer
 
@@ -100,6 +148,9 @@ trainer = BindingScoreTrainer(
 
 trainer.train()
 ```
+
+The training process is described in the following figure.
+![zFastVS Pipeline](./images/zfastvs_fig2.png)
 
 ## Project Structure
 ```
